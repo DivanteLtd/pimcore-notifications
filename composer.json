@@ -1,0 +1,36 @@
+{
+    "name": "divante-ltd/pimcore-notifications",
+    "description": "Notifications plugin for pimcore.",
+    "type": "pimcore-plugin",
+    "license": "GPL-3.0+",
+    "minimum-stability": "dev",
+    "require": {
+        "pimcore/installer-plugin": ">=1",
+        "cboden/ratchet": "^0.3.5",
+        "pimcore/pimcore": ">=4"
+    },
+    "keywords": [ "pimcore", "notifications", "plugin" ],
+    "homepage": "https://github.com/DivanteLtd/pimcore-notifications",
+    "authors": [
+        {
+            "name": "DivanteLtd",
+            "email":  "pimcore@divante.pl",
+            "homepage": "http://divante.co"
+        },
+        {
+            "name": "Piotr Ćwięcek",
+            "email":  "pcwiecek@divante.pl",
+            "role": "Developer"
+        },
+        {
+            "name": "Kamil Karkus",
+            "email":  "kkarkus@divante.pl",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "PimcoreNotifications\\": "lib"
+        }
+    }
+}
