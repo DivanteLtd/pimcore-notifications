@@ -43,8 +43,14 @@ final class Plugin extends PluginLib\AbstractPlugin implements PluginLib\PluginI
 
     public static function isInstalled()
     {
-        $stmt = \Pimcore\Db::getConnection()->query('select 1 from `notifications` LIMIT 1');
-        return strcmp($stmt->fetch(\PDO::FETCH_COLUMN), "1") === 0;
+        $ret = false;
+        try {
+            $stmt = \Pimcore\Db::getConnection()->query('SHOW TABLES LIKE \'notifications\'');
+            $ret = strcmp($stmt->fetch(\PDO::FETCH_COLUMN), "notifications") === 0;
+        } catch (\Exception $e) {
+            $ret = false;
+        }
+        return $ret;
     }
 
     public static function getTranslationFileDirectory()
