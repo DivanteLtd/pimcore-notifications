@@ -7,7 +7,7 @@
     "require": {
         "pimcore/installer-plugin": ">=1",
         "cboden/ratchet": "^0.3.5",
-        "pimcore/pimcore": ">=4"
+        "pimcore/core-version": ">=4"
     },
     "keywords": [ "pimcore", "notifications", "plugin" ],
     "homepage": "https://github.com/DivanteLtd/pimcore-notifications",
