@@ -24,7 +24,7 @@ class Dao extends Model\Dao\AbstractDao
      */
     public function getById($id)
     {
-        $data = $this->db->fetchRow("SELECT notifications.* FROM notifications WHERE notifications.id = ?", $id);
+        $data = $this->db->fetchRow("SELECT plugin_notifications.* FROM plugin_notifications WHERE plugin_notifications.id = ?", $id);
 
         if ($data["id"] > 0) {
             $this->assignVariablesToModel($data);
@@ -41,13 +41,15 @@ class Dao extends Model\Dao\AbstractDao
     public function create()
     {
         try {
-            $this->db->insert("notifications", [
+            $this->db->insert("plugin_notifications", [
                 "title" => $this->model->getTitle(),
                 "message" => $this->model->getMessage(),
                 "type" => $this->model->getType(),
                 "fromUser" => $this->model->getFromUser(),
                 "user" => $this->model->getUser(),
                 "unread" => $this->model->isUnread(),
+                "linkedElement" => $this->model->getLinkedElement() ? $this->model->getLinkedElement()->getId() : null,
+                "linkedElementType" => $this->model->getLinkedElementType(),
                 "creationDate" => time()
             ]);
 
@@ -65,7 +67,7 @@ class Dao extends Model\Dao\AbstractDao
     public function update()
     {
         try {
-            $this->db->update("notifications", [
+            $this->db->update("plugin_notifications", [
                 "title" => $this->model->getTitle(),
                 "message" => $this->model->getMessage(),
                 "type" => $this->model->getType(),
@@ -73,6 +75,8 @@ class Dao extends Model\Dao\AbstractDao
                 "user" => $this->model->getUser(),
                 "unread" => $this->model->isUnread(),
                 "creationDate" => $this->model->getCreationDate(),
+                "linkedElement" => $this->model->getLinkedElement() ? $this->model->getLinkedElement()->getId() : null,
+                "linkedElementType" => $this->model->getLinkedElementType(),
                 "modificationDate" => time()
             ], $this->db->quoteInto("id = ?", $this->model->getId()));
         } catch (\Exception $e) {
@@ -104,9 +108,29 @@ class Dao extends Model\Dao\AbstractDao
     public function delete()
     {
         try {
-            $this->db->delete("notifications", $this->db->quoteInto("id = ?", $this->model->getId()));
+            $this->db->delete("plugin_notifications", $this->db->quoteInto("id = ?", $this->model->getId()));
         } catch (\Exception $e) {
             throw $e;
+        }
+    }
+
+    /**
+     * @param array $data
+     */
+    protected function assignVariablesToModel($data)
+    {
+        parent::assignVariablesToModel($data);
+        foreach ($data as $key => $value) {
+            if ('linkedElement' == $key) {
+                $type = $this->model->getLinkedElementType();
+                if ('document' == $type) {
+                    $this->model->setLinkedElement(\Pimcore\Model\Document::getById($value));
+                } else if ('asset' == $type) {
+                    $this->model->setLinkedElement(\Pimcore\Model\Asset::getById($value));
+                } else if ('object' == $type) {
+                    $this->model->setLinkedElement(\Pimcore\Model\Object::getById($value));
+                }
+            }
         }
     }
 }

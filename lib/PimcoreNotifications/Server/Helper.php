@@ -40,7 +40,12 @@ class Helper
                 'from' => '',
                 'date' => $date->get('YYYY-MM-dd HH:mm:ss'),
                 'type' => $notification->getType(),
+                'linkedElementType' => $notification->getLinkedElementType(),
+                'linkedElementId' => null
             ];
+            if ($notification->getLinkedElement()) {
+                $tmp['linkedElementId'] = $notification->getLinkedElement()->getId();
+            }
             /** @var User $fromUser */
             $fromUser = User::getById($notification->getFromUser());
             if ($fromUser) {

@@ -5,7 +5,7 @@
 pimcore.registerNS("pimcore.plugin.notifications.helpers.x");
 
 
-pimcore.plugin.notifications.helpers.updateCount = function(count) {
+pimcore.plugin.notifications.helpers.updateCount = function (count) {
     if (count > 0) {
         Ext.get("notification_value").show();
         Ext.fly('notification_value').update(count);
@@ -14,9 +14,36 @@ pimcore.plugin.notifications.helpers.updateCount = function(count) {
     }
 };
 
-pimcore.plugin.notifications.helpers.showNotifications = function(notifications) {
+pimcore.plugin.notifications.helpers.showNotifications = function (notifications) {
     for (var i = 0; i < notifications.length; i++) {
         var row = notifications[i];
+        var tools = [];
+        tools.push({
+            type: 'save',
+            tooltip: t('mark_as_read'),
+            handler: function () {
+                this.up('window').close();
+                pimcore.plugin.notifications.helpers.markAsRead(row.id);
+            }
+        });
+        if (row.linkedElementId) {
+            tools.push({
+                type: 'right',
+                tooltip: t('open_linked_element'),
+                handler: function () {
+                    this.up('window').close();
+                    pimcore.plugin.notifications.helpers.openLinkedElement(row);
+                }
+            });
+        }
+        tools.push({
+            type: 'maximize',
+            tooltip: t('open'),
+            handler: function () {
+                this.up('window').close();
+                pimcore.plugin.notifications.helpers.openDetails(row.id);
+            }
+        });
         var notification = Ext.create('Ext.window.Toast', {
             iconCls: 'pimcore_icon_' + row.type,
             title: row.title,
@@ -26,26 +53,9 @@ pimcore.plugin.notifications.helpers.showNotifications = function(notifications)
             maxWidth: 350,
             closable: true,
             autoClose: false,
-            tools: [
-                {
-                    id: 'save',
-                    tooltip: t('mark_as_read'),
-                    handler: function () {
-                        notification.close();
-                        pimcore.plugin.notifications.helpers.markAsRead(row.id);
-                    }
-                },
-                {
-                    id: 'right',
-                    tooltip: t('open'),
-                    handler: function () {
-                        notification.close();
-                        pimcore.plugin.notifications.helpers.openDetails(row.id);
-                    }
-                }
-            ]
+            tools: tools
         });
-        notification.show(document);
+        notification.show();
     }
 };
 
@@ -54,7 +64,7 @@ pimcore.plugin.notifications.helpers.delete = function (id, callback) {
         url: "/plugin/PimcoreNotifications/index/delete?id=" + id,
         success: function (response) {
             if (callback) {
-            callback();
+                callback();
             }
         }
     });
@@ -125,4 +135,14 @@ pimcore.plugin.notifications.helpers.openDetailsWindow = function (id, title, me
     });
     notification.show(document);
     notification.focus();
+};
+
+pimcore.plugin.notifications.helpers.openLinkedElement = function(row) {
+    if ('document' == row['linkedElementType']) {
+        pimcore.helpers.openElement(row['linkedElementId'], 'document');
+    } else if ('asset' == row['linkedElementType']) {
+        pimcore.helpers.openElement(row['linkedElementId'], 'asset');
+    } else if ('object' == row['linkedElementType']) {
+        pimcore.helpers.openElement(row['linkedElementId'], 'object');
+    }
 };

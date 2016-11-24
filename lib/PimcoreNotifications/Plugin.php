@@ -16,7 +16,7 @@ final class Plugin extends PluginLib\AbstractPlugin implements PluginLib\PluginI
         parent::init();
 
         if (!\Pimcore\Tool\Admin::isExtJS6()) {
-            throw new \Exception('PimcoreNotifications plugins required ExtJS6.');
+            throw new \Exception('PimcoreNotifications plugin requires ExtJS6.');
         }
 
         \Pimcore::getEventManager()->attach(
@@ -45,8 +45,8 @@ final class Plugin extends PluginLib\AbstractPlugin implements PluginLib\PluginI
     {
         $ret = false;
         try {
-            $stmt = \Pimcore\Db::getConnection()->query('SHOW TABLES LIKE \'notifications\'');
-            $ret = strcmp($stmt->fetch(\PDO::FETCH_COLUMN), "notifications") === 0;
+            $stmt = \Pimcore\Db::getConnection()->query('SHOW TABLES LIKE \'plugin_notifications\'');
+            $ret = strcmp($stmt->fetch(\PDO::FETCH_COLUMN), "plugin_notifications") === 0;
         } catch (\Exception $e) {
             $ret = false;
         }

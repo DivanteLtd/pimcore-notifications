@@ -59,6 +59,16 @@ class Notification extends AbstractModel
     public $modificationDate;
 
     /**
+     * @var \Pimcore\Model\Document|\Pimcore\Model\Asset|\Pimcore\Model\Object
+     */
+    public $linkedElement;
+    /**
+     * @var string
+     */
+    public $linkedElementType;
+
+
+    /**
      * @param int $id
      *
      * @return Notification|null
@@ -319,5 +329,76 @@ class Notification extends AbstractModel
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * @return \Pimcore\Model\Asset|\Pimcore\Model\Document|\Pimcore\Model\Object
+     */
+    public function getLinkedElement()
+    {
+        return $this->linkedElement;
+    }
+
+    /**
+     * @param \Pimcore\Model\Asset|\Pimcore\Model\Document|\Pimcore\Model\Object $linkedElement
+     */
+    public function setLinkedElement($linkedElement)
+    {
+        $this->linkedElement = $linkedElement;
+        if ($linkedElement instanceof \Pimcore\Model\Document) {
+            $this->setLinkedElementType('document');
+        } else if ($linkedElement instanceof \Pimcore\Model\Asset) {
+            $this->setLinkedElementType('asset');
+        } else if ($linkedElement instanceof \Pimcore\Model\Object) {
+            $this->setLinkedElementType('object');
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getLinkedElementType()
+    {
+        return $this->linkedElementType;
+    }
+
+    /**
+     * @param string $linkedElementType
+     */
+    public function setLinkedElementType($linkedElementType)
+    {
+        $this->linkedElementType = $linkedElementType;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLinkedDocument()
+    {
+        return 'document' == $this->linkedElementType;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLinkedAsset()
+    {
+        return 'asset' == $this->linkedElementType;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLinkedObject()
+    {
+        return 'object' == $this->linkedElementType;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLinkedNote()
+    {
+        return 'note' == $this->linkedElementType;
     }
 }

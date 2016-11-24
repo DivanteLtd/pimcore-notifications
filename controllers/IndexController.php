@@ -3,7 +3,7 @@
 use PimcoreNotifications\Model\Notification;
 
 /**
- * Class Notifications_IndexController
+ * Class PimcoreNotifications_IndexController
  *
  * @author Kamil Karkus <kkarkus@divante.pl>
  */
@@ -21,8 +21,7 @@ final class PimcoreNotifications_IndexController extends \Pimcore\Controller\Act
         $data = ['token' => $token, 'user' => $userId];
         $userIdHash = md5($userId);
         \PimcoreNotifications\Cache::save($userIdHash, $data);
-        echo Zend_Json::encode(['token' => $token, 'user' => $userIdHash]);
-        exit;
+        $this->_helper->json(['token' => $token, 'user' => $userIdHash]);
     }
 
     /**
@@ -51,8 +50,13 @@ final class PimcoreNotifications_IndexController extends \Pimcore\Controller\Act
                 'title' => $notification->getTitle(),
                 'from' => '',
                 'date' => $date->get('YYYY-MM-dd HH:mm:ss'),
-                'unread' => $notification->isUnread()
+                'unread' => $notification->isUnread(),
+                'linkedElementType' => $notification->getLinkedElementType(),
+                'linkedElementId' => null
             ];
+            if ($notification->getLinkedElement()) {
+                $tmp['linkedElementId'] = $notification->getLinkedElement()->getId();
+            }
             /** @var \Pimcore\Model\User $fromUser */
             $fromUser = \Pimcore\Model\User::getById($notification->getFromUser());
             if ($fromUser) {
@@ -113,7 +117,12 @@ final class PimcoreNotifications_IndexController extends \Pimcore\Controller\Act
             'from' => '',
             'date' => $date->get('YYYY-MM-dd HH:mm:ss'),
             'type' => $notification->getType(),
+            'linkedElementType' => $notification->getLinkedElementType(),
+            'linkedElementId' => null
         ];
+        if ($notification->getLinkedElement()) {
+            $data['linkedElementId'] = $notification->getLinkedElement()->getId();
+        }
         /** @var \Pimcore\Model\User $fromUser */
         $fromUser = \Pimcore\Model\User::getById($notification->getFromUser());
         if ($fromUser) {

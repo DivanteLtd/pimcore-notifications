@@ -48,6 +48,8 @@ $notification
     ->setMessage('your message')
     ->setType('info') // allowed: info|success|error
     ->setUser($user)
+    ->setFromUser($fromUser) // optional
+    ->setLinkedElement($document) // optional, allowed: Document|Asset|Object
 ;
 $notification->save();
 ```

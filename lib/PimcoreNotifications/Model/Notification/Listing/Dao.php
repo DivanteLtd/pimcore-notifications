@@ -51,7 +51,7 @@ class Dao extends Model\Listing\Dao\AbstractDao
     {
         $select = $this->db->select();
         $select->from(
-            [ "notifications" ], $columns
+            [ "plugin_notifications" ], $columns
         );
         $this->addConditions($select);
         $this->addOrder($select);
@@ -96,7 +96,7 @@ class Dao extends Model\Listing\Dao\AbstractDao
     public function getTotalCount()
     {
         try {
-            $amount = (int) $this->db->fetchOne("SELECT COUNT(*) as amount FROM notifications " . $this->getCondition(), $this->model->getConditionVariables());
+            $amount = (int) $this->db->fetchOne("SELECT COUNT(*) as amount FROM plugin_notifications " . $this->getCondition(), $this->model->getConditionVariables());
         } catch (\Exception $e) {
             Logger::warning($e->getMessage());
         }
