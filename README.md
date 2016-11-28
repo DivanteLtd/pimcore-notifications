@@ -12,7 +12,7 @@ There're two different ways of communication:
 When there's new notification for user, it shows as window
 with possibility to close it, mark as read or open details.
 
-## Requiremnts
+## Requirements
 
 - Pimcore with ExtJS6
 - Composer (optionally)
