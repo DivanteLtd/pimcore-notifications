@@ -36,7 +36,7 @@ pimcore.layout.portlets.notifications = Class.create(pimcore.layout.portlets.abs
                 renderer: function (val, metaData, record, rowIndex, colIndex, store) {
                     var unread = parseInt(store.getAt(rowIndex).get("unread"));
                     if (unread) {
-                        return '<strong>' + val + '</strong>';
+                        return '<strong style="font-weight: bold;">' + val + '</strong>'; // css style need to be added
                     }
                     return val;
                 }
