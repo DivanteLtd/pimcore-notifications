@@ -63,18 +63,36 @@ pimcore.plugin.notifications.panel = Class.create({
             {
                 header: t("title"),
                 flex: 10,
-                sortable: false,
+                sortable: true,
+                filter: 'string',
                 dataIndex: 'title',
                 renderer: function (val, metaData, record, rowIndex, colIndex, store) {
                     var unread = parseInt(store.getAt(rowIndex).get("unread"));
                     if (unread) {
-                        return '<strong>' + val + '</strong>';
+                        return '<strong style="font-weight: bold;">' + val + '</strong>'; // css style need to be added
                     }
                     return val;
                 }
             },
-            {header: t("from"), flex: 2, sortable: false, dataIndex: 'from'},
-            {header: t("date"), flex: 3, sortable: false, dataIndex: 'date'},
+            {header: t("from"), flex: 2, sortable: true, filter: 'string', dataIndex: 'from'},
+            {header: t("date"), flex: 3, sortable: true, filter: 'date', dataIndex: 'date'},
+            {
+                header: t("element"),
+                xtype: 'actioncolumn',
+                flex: 1,
+                items: [
+                    {
+                        tooltip: t('open_linked_element'),
+                        icon: "/pimcore/static6/img/flat-color-icons/cursor.svg",
+                        handler: function (grid, rowIndex) {
+                            pimcore.plugin.notifications.helpers.openLinkedElement(grid.getStore().getAt(rowIndex).data);
+                        }.bind(this),
+                        isDisabled: function (grid, rowIndex) {
+                            return !parseInt(grid.getStore().getAt(rowIndex).data['linkedElementId']);
+                        }.bind(this)
+                    }
+                ]
+            },
             {
                 xtype: 'actioncolumn',
                 flex: 1,
@@ -123,9 +141,14 @@ pimcore.plugin.notifications.panel = Class.create({
                     text: t("delete_all"),
                     iconCls: "pimcore_icon_delete",
                     handler: function() {
-                        pimcore.plugin.notifications.helpers.deleteAll(function () {
-                            this.reload();
-                        }.bind(this));
+                        Ext.MessageBox.confirm(t("are_you_sure"), t("all_content_will_be_lost"),
+                            function (buttonValue) {
+                                if (buttonValue == "yes") {
+                                    pimcore.plugin.notifications.helpers.deleteAll(function () {
+                                        this.reload();
+                                    }.bind(this));
+                                }
+                            }.bind(this));
                     }.bind(this)
                 }
             ]
@@ -135,6 +158,7 @@ pimcore.plugin.notifications.panel = Class.create({
             frame: false,
             autoScroll: true,
             store: this.store,
+            plugins: ['pimcore.gridfilters'],
             columns: typesColumns,
             trackMouseOver: true,
             bbar: this.pagingtoolbar,

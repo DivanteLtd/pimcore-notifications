@@ -13,7 +13,7 @@ pimcore.plugin.notifications = Class.create(pimcore.plugin.admin, {
     },
 
     startAjaxConnection: function () {
-        pimcore["intervals"]["checkNewNotification"] = window.setInterval(function () {
+        function runAjaxConnection () {
             Ext.Ajax.request({
                 url: "/plugin/PimcoreNotifications/index/unread?interval=" + 30,
                 success: function (response) {
@@ -22,7 +22,12 @@ pimcore.plugin.notifications = Class.create(pimcore.plugin.admin, {
                     pimcore.plugin.notifications.helpers.showNotifications(data.data);
                 }
             });
+        }
+        
+        pimcore["intervals"]["checkNewNotification"] = window.setInterval(function (elt) {
+            runAjaxConnection();
         }, 30000);
+        runAjaxConnection(); // run at the Pimcore login
     },
 
     startConnection: function () {
@@ -31,7 +36,9 @@ pimcore.plugin.notifications = Class.create(pimcore.plugin.admin, {
             success: function (response) {
                 var data = Ext.decode(response.responseText);
 
-                this.socket = new WebSocket("ws://" + location.host + ":8080/?token=" + data['token'] + "&user=" + data['user']);
+                var websocketProtocol = "ws:";
+                if (location.protocol === "https:") websocketProtocol = "wss:";
+                this.socket = new WebSocket(websocketProtocol + "//" + location.host + ":8080/?token=" + data['token'] + "&user=" + data['user']);
                 this.socket.onopen = function (event) {
                 };
                 this.socket.onclose = function (event) {
