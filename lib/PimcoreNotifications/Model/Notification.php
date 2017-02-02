@@ -324,11 +324,33 @@ class Notification extends AbstractModel
     }
 
     /**
+     * @param int $creationDate
+     *
+     * @return $this
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+        return $this;
+    }
+
+    /**
      * @return int
      */
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * @param int $modificationDate
+     *
+     * @return $this
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+        return $this;
     }
 
     /**

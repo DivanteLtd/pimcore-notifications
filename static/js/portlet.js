@@ -30,19 +30,36 @@ pimcore.layout.portlets.notifications = Class.create(pimcore.layout.portlets.abs
             {header: "ID", flex: 1, sortable: false, hidden: true, dataIndex: 'id'},
             {
                 header: t("title"),
-                flex: 6,
+                flex: 4,
                 sortable: false,
                 dataIndex: 'title',
                 renderer: function (val, metaData, record, rowIndex, colIndex, store) {
                     var unread = parseInt(store.getAt(rowIndex).get("unread"));
                     if (unread) {
-                        return '<strong>' + val + '</strong>';
+                        return '<strong style="font-weight: bold;">' + val + '</strong>'; // css style need to be added
                     }
                     return val;
                 }
             },
             {header: t("from"), flex: 2, sortable: false, dataIndex: 'from'},
-            {header: t("date"), flex: 3, sortable: false, dataIndex: 'date'},
+            {header: t("date"), flex: 2, sortable: false, dataIndex: 'date'},
+            {
+                header: t("element"),
+                xtype: 'actioncolumn',
+                flex: 0.5,
+                items: [
+                    {
+                        tooltip: t('open_linked_element'),
+                        icon: "/pimcore/static6/img/flat-color-icons/cursor.svg",
+                        handler: function (grid, rowIndex) {
+                            pimcore.plugin.notifications.helpers.openLinkedElement(grid.getStore().getAt(rowIndex).data);
+                        }.bind(this),
+                        isDisabled: function (grid, rowIndex) {
+                            return !parseInt(grid.getStore().getAt(rowIndex).data['linkedElementId']);
+                        }.bind(this)
+                    }
+                ]
+            },
             {
                 xtype: 'actioncolumn',
                 flex: 1,
@@ -51,7 +68,7 @@ pimcore.layout.portlets.notifications = Class.create(pimcore.layout.portlets.abs
                         tooltip: t('open'),
                         icon: "/pimcore/static6/img/flat-color-icons/right.svg",
                         handler: function (grid, rowIndex) {
-                            this.openDetails(grid.getStore().getAt(rowIndex).get("id"));
+                            pimcore.plugin.notifications.helpers.openDetails(grid.getStore().getAt(rowIndex).get("id"));
                         }.bind(this)
                     },
                     {

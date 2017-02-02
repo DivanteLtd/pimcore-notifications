@@ -39,8 +39,100 @@ final class PimcoreNotifications_IndexController extends \Pimcore\Controller\Act
         $notifications = new Notification\Listing();
         $notifications
             ->setCondition('user = ?', $this->user->getId())
+            ->setOrderKey("creationDate") // default order
+            ->setOrder("DESC")
             ->setOffset($offset)
             ->setLimit($limit);
+
+        // Sorting
+        $sortingSettings = \Pimcore\Admin\Helper\QueryParams::extractSortingSettings($this->getAllParams());
+        if ($sortingSettings['orderKey']) {
+            if ($sortingSettings['orderKey'] == "date") $sortingSettings['orderKey'] = "creationDate";
+            if ($sortingSettings['orderKey'] == "from") $sortingSettings['orderKey'] = "fromUser";
+            $notifications->setOrderKey($sortingSettings['orderKey']);
+            $notifications->setOrder($sortingSettings['order']);
+        }
+
+        // Filtering (see: /pimcore/modules/admin/controllers/RecyclebinController.php for instance)
+        $db = \Pimcore\Db::get();
+        $conditionFilters = [];
+
+        if ($this->getParam("filterFullText")) {
+            $conditionFilters[] = "path LIKE " . $notifications->quote("%".$this->getParam("filterFullText")."%");
+        }
+
+        $filters = $this->getParam("filter");
+        if ($filters) {
+            $filters = \Zend_Json::decode($filters);
+
+            foreach ($filters as $filter) {
+                $operator = "=";
+
+                $filterField = $filter["field"];
+                $filterOperator = $filter["comparison"];
+                if (\Pimcore\Tool\Admin::isExtJS6()) {
+                    $filterField = $filter["property"];
+                    $filterOperator = $filter["operator"];
+                }
+
+                // custom field name
+                if ($filterField == "date") $filterField = "creationDate";
+                if ($filterField == "from") {
+                    $conditionFilters[] = "fromUser IN (SELECT `id` FROM `users` WHERE CONCAT(`firstname`, ' ', `lastname`) LIKE " . $db->quote("%".$filter["value"]."%") . ")";
+                    continue;
+                }
+
+                if ($filter["type"] == "string") {
+                    $operator = "LIKE";
+                } elseif ($filter["type"] == "numeric") {
+                    if ($filterOperator == "lt") {
+                        $operator = "<";
+                    } elseif ($filterOperator == "gt") {
+                        $operator = ">";
+                    } elseif ($filterOperator == "eq") {
+                        $operator = "=";
+                    }
+                } elseif ($filter["type"] == "date") {
+                    if ($filterOperator == "lt") {
+                        $operator = "<";
+                    } elseif ($filterOperator == "gt") {
+                        $operator = ">";
+                    } elseif ($filterOperator == "eq") {
+                        $operator = "=";
+                    }
+                    $filter["value"] = strtotime($filter["value"]);
+                } elseif ($filter["type"] == "list") {
+                    $operator = "=";
+                } elseif ($filter["type"] == "boolean") {
+                    $operator = "=";
+                    $filter["value"] = (int) $filter["value"];
+                }
+                // system field
+                $value = $filter["value"];
+                if ($operator == "LIKE") {
+                    $value = "%" . $value . "%";
+                }
+
+                $field = "`" . $filterField . "` ";
+                if ($filter["field"] == "fullpath") {
+                    $field = "CONCAT(path,filename)";
+                }
+
+                if ($filter["type"] == "date" && $operator == "=") {
+                    $maxTime = $value + (86400 - 1); //specifies the top point of the range used in the condition
+                    $condition =  $field . " BETWEEN " . $db->quote($value) . " AND " . $db->quote($maxTime);
+                    $conditionFilters[] = $condition;
+                } else {
+                    $conditionFilters[] = $field . $operator . " '" . $value . "' ";
+                }
+            }
+        }
+
+        if (!empty($conditionFilters)) {
+            $condition = implode(" AND ", $conditionFilters);
+            $notifications->setCondition($condition);
+        }
+
         $data = [];
         /** @var Notification $notification */
         foreach ($notifications->load() as $notification) {
@@ -109,6 +201,11 @@ final class PimcoreNotifications_IndexController extends \Pimcore\Controller\Act
             throw new Exception('Notification not found');
         }
 
+        // Security check: only recipient user
+        if (\Project\Tools::getAdminUser()->getId() !== $notification->getUser()) {
+            throw new Exception('Not allowed');
+        }
+
         $date = new Zend_Date($notification->getCreationDate());
         $data = [
             'id' => $notification->getId(),
@@ -155,6 +252,11 @@ final class PimcoreNotifications_IndexController extends \Pimcore\Controller\Act
             throw new Exception('Notification not found');
         }
 
+        // Security check: only recipient user
+        if (\Project\Tools::getAdminUser()->getId() !== $notification->getUser()) {
+            throw new Exception('Not allowed');
+        }
+
         $notification->delete();
         $this->_helper->json([
             "success" => true,
@@ -195,6 +297,11 @@ final class PimcoreNotifications_IndexController extends \Pimcore\Controller\Act
 
         if (!$notification) {
             throw new Exception('Notification not found');
+        }
+
+        // Security check: only recipient user
+        if (\Project\Tools::getAdminUser()->getId() !== $notification->getUser()) {
+            throw new Exception('Not allowed');
         }
 
         $this->changeStatus($notification);
