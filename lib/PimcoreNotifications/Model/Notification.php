@@ -371,7 +371,8 @@ class Notification extends AbstractModel
             $this->setLinkedElementType('document');
         } else if ($linkedElement instanceof \Pimcore\Model\Asset) {
             $this->setLinkedElementType('asset');
-        } else if ($linkedElement instanceof \Pimcore\Model\Object) {
+        } else if ($linkedElement instanceof \Pimcore\Model\Object ||
+            $linkedElement instanceof \Pimcore\Model\Object\Concrete) {
             $this->setLinkedElementType('object');
         }
     }
