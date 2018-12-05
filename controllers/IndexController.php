@@ -202,7 +202,7 @@ final class PimcoreNotifications_IndexController extends \Pimcore\Controller\Act
         }
 
         // Security check: only recipient user
-        if (\Project\Tools::getAdminUser()->getId() !== $notification->getUser()) {
+        if ($this->getUser()->getId() != $notification->getUser()) {
             throw new Exception('Not allowed');
         }
 
@@ -253,7 +253,7 @@ final class PimcoreNotifications_IndexController extends \Pimcore\Controller\Act
         }
 
         // Security check: only recipient user
-        if (\Project\Tools::getAdminUser()->getId() !== $notification->getUser()) {
+        if ($this->getUser()->getId() != $notification->getUser()) {
             throw new Exception('Not allowed');
         }
 
@@ -300,7 +300,7 @@ final class PimcoreNotifications_IndexController extends \Pimcore\Controller\Act
         }
 
         // Security check: only recipient user
-        if (\Project\Tools::getAdminUser()->getId() !== $notification->getUser()) {
+        if ($this->getUser()->getId() != $notification->getUser()) {
             throw new Exception('Not allowed');
         }
 
