@@ -17,9 +17,9 @@ class Helper
      * Retrieves unread notifications json list for given user.
      *
      * @param User $user
-     * @param int  $lastRun
-     *
+     * @param int $lastRun
      * @return array
+     * @throws \Zend_Date_Exception
      */
     public static function getUnread($user, $lastRun)
     {
@@ -74,5 +74,4 @@ class Helper
 
         return $notifications->getTotalCount();
     }
-
 }
