@@ -14,7 +14,10 @@ use PimcoreNotifications\Model\Notification;
  * @method int getCount()
  * @method int loadIdList()
  */
-class Listing extends Model\Listing\AbstractListing implements \Zend_Paginator_Adapter_Interface, \Zend_Paginator_AdapterAggregate, \Iterator
+class Listing extends Model\Listing\AbstractListing implements
+    \Zend_Paginator_Adapter_Interface,
+    \Zend_Paginator_AdapterAggregate,
+    \Iterator
 {
     /**
      * Contains the results of the list

@@ -31,13 +31,15 @@ final class Plugin extends PluginLib\AbstractPlugin implements PluginLib\PluginI
 
     public static function install()
     {
-        \Pimcore\Db::getConnection()->query(file_get_contents(PIMCORE_PLUGINS_PATH . '/PimcoreNotifications/schema_up.sql'));
+        \Pimcore\Db::getConnection()
+            ->query(file_get_contents(PIMCORE_PLUGINS_PATH . '/PimcoreNotifications/schema_up.sql'));
         return true;
     }
     
     public static function uninstall()
     {
-        \Pimcore\Db::getConnection()->query(file_get_contents(PIMCORE_PLUGINS_PATH . '/PimcoreNotifications/schema_down.sql'));
+        \Pimcore\Db::getConnection()
+            ->query(file_get_contents(PIMCORE_PLUGINS_PATH . '/PimcoreNotifications/schema_down.sql'));
         return true;
     }
 
@@ -62,6 +64,4 @@ final class Plugin extends PluginLib\AbstractPlugin implements PluginLib\PluginI
     {
         return self::getTranslationFileDirectory() . $language . '.csv';
     }
-
-
 }
