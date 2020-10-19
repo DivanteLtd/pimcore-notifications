@@ -1,3 +1,6 @@
+# It's in the core now!
+As the notifications have been merged to the core of Pimcore, this repository is no longer maintained.
+
 # PimcoreNotifications
  
 It's simple plugin that allows to send notifications to user. 
